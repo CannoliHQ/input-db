@@ -1,4 +1,4 @@
-# cannoli-input-db
+# Cannoli Input Database
 
 Cannoli's curated controller mapping database. Every entry is a RetroArch-format
 `.cfg` that has been verified on real hardware. The launcher fetches this repo at
@@ -16,8 +16,7 @@ ayn/thor.cfg
 sony/dualsense.cfg
 ```
 
-Directory and file names are cosmetic; matching is done on the cfg's contents, not
-its path.
+Directory and file names are cosmetic; matching is done on the cfg's contents, not its path.
 
 ## Format
 

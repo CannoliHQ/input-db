@@ -50,13 +50,20 @@ If a legend key is omitted, the launcher infers it (Sony vid -> `SHAPES`, otherw
 ### Bindings
 
 Standard RetroArch keys. Face/shoulder buttons are Android keycodes; the d-pad uses hat
-notation (`h0up`); triggers and sticks use axis notation (`+23`, `-0`).
+notation (`h0up`); triggers and sticks use axis notation, where the sign is the direction
+and the number is a RetroArch analog *slot*, not an Android axis id (`+8`, `-0`).
 
-- Analog triggers: bind both the digital keycode and the axis, e.g.
-  `input_l2_btn = "104"` with `input_l2_axis = "+23"`. Axis numbers are Android
-  `MotionEvent` axis constants (`AXIS_GAS` = 22, `AXIS_BRAKE` = 23, `AXIS_LTRIGGER` = 17,
-  etc.), captured by pressing the control, not guessed.
-- Sticks: `input_l_x_plus_axis` / `_minus_axis` and the `l_y` / `r_x` / `r_y` pairs.
+- Axis numbers are RetroArch's compacted analog **slots**, not Android `MotionEvent`
+  constants: left stick X/Y = `0`/`1`, right stick X/Y = `2`/`3`, `LTRIGGER` = `6`,
+  `RTRIGGER` = `7`, `BRAKE` = `8`, `GAS` = `9`. The launcher captures the raw Android axis
+  when you press the control and translates it to the slot on save, so pull the cfg off the
+  device rather than hand-authoring these.
+- Analog triggers: bind both the digital keycode and the axis, e.g. `input_l2_btn = "104"`
+  with `input_l2_axis = "+8"` (a `BRAKE`-routed L2, like the Retroid Pocket Nova) or `"+6"`
+  (an `LTRIGGER`-routed one, like the Retroid Pocket Classic). Which slot a pad uses is its
+  own business, so capture it, do not guess.
+- Sticks: `input_l_x_plus_axis` / `_minus_axis` and the `l_y` / `r_x` / `r_y` pairs, on
+  slots `0`-`3`.
 
 Do not include per-instance keys in a database entry: `cannoli_user`,
 `cannoli_descriptor`, and `cannoli_exclude_from_gameplay` belong to a single user's

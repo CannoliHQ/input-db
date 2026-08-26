@@ -55,6 +55,30 @@ for f in $cfgs; do
         *) fail "invalid cannoli_confirm_button '$confirm' (BTN_SOUTH|BTN_EAST|BTN_NORTH|BTN_WEST)" ;;
     esac
 
+    # Aliases are extra exact names the same pad reports (Android renames a merged multi-node
+    # device after whichever node enumerated first). Split on the pipe without a subshell, so a
+    # failure here actually counts.
+    aliases=$(val "$f" cannoli_device_aliases)
+    if [ -n "$aliases" ]; then
+        seen_aliases=""
+        saved_ifs=$IFS
+        IFS='|'
+        for alias in $aliases; do
+            IFS=$saved_ifs
+            alias=$(printf '%s' "$alias" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            if [ -n "$alias" ]; then
+                [ "$alias" != "$device" ] || fail "alias '$alias' repeats input_device"
+                case "$seen_aliases" in
+                    *"|$alias|"*) fail "duplicate alias '$alias'" ;;
+                    *) seen_aliases="$seen_aliases|$alias|" ;;
+                esac
+                printf 'alias=%s\t%s\n' "$alias" "$f" >>"$idfile"
+            fi
+            IFS='|'
+        done
+        IFS=$saved_ifs
+    fi
+
     for banned in cannoli_user cannoli_descriptor cannoli_exclude_from_gameplay; do
         if [ -n "$(val "$f" "$banned")" ]; then
             fail "per-instance key '$banned' does not belong in a database entry"
@@ -73,7 +97,7 @@ dups=$(cut -f1 "$idfile" | sort | uniq -d)
 if [ -n "$dups" ]; then
     echo
     echo "Duplicate identities (two entries would match the same pad):"
-    for d in $dups; do
+    printf '%s\n' "$dups" | while IFS= read -r d; do
         echo "  $d"
         grep -F "$d	" "$idfile" | cut -f2 | sed 's/^/    /'
     done

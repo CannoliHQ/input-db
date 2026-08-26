@@ -34,6 +34,17 @@ See `ayn/thor.cfg` for a complete, annotated-by-example entry.
   - Use the real `ro.product.model`, never the underscore-sanitized value that
     `adb devices -l` prints (`AYN_Thor`).
 
+- `cannoli_device_aliases` — extra exact device names this same pad reports, separated by `|`.
+  Android merges a pad's HID nodes into one InputDevice and names it after whichever node
+  enumerated first, so one controller comes back as `GameSir-Pocket 1` on one connect and
+  `GameSir-Pocket 1 Keyboard` on the next. List the alternates here.
+  - Matching stays exact per name; this is a list of names, never a prefix or fuzzy rule.
+  - An alias match ranks below an exact `input_device` match, so an entry that names the pad
+    outright always beats one that only aliases it.
+  - Capture the names, do not guess them: `adb shell dumpsys input` prints the merged device's
+    name (`Device 10: GameSir-Pocket 1 Keyboard`), and reconnecting the pad shows which names it
+    takes. RetroArch ignores this key; it scores vid/pid on its own.
+
 ### Legend (glyphs and confirm/back)
 
 The legend is the physical face-button feel, kept separate from the keycode->action map.
@@ -73,6 +84,7 @@ saved override, not the canonical mapping.
 1. Map it on real hardware in Cannoli (press-to-bind captures the true keycodes/axes).
 2. Pull the resulting cfg off the device.
 3. Strip the per-instance keys listed above; confirm the identity and legend keys.
+   Reconnect the pad a few times and add any alternate name it reports to `cannoli_device_aliases`.
 4. Save it under `<vendor>/<device>.cfg` and run `./validate.sh`.
 5. Open a PR noting the exact device and `ro.product.model` you verified against.
 
@@ -84,5 +96,6 @@ Only add an entry you have confirmed on the physical device.
 ./validate.sh
 ```
 
-Checks that every cfg has an identity, a valid glyph style and confirm button, and that
-no two entries claim the same identity. CI runs the same script on every push.
+Checks that every cfg has an identity, a valid glyph style and confirm button, that no alias
+repeats its own `input_device` or another alias in the same file, and that no two entries claim
+the same identity or alias. CI runs the same script on every push.

@@ -79,7 +79,18 @@ for f in $cfgs; do
         IFS=$saved_ifs
     fi
 
-    for banned in cannoli_user cannoli_descriptor cannoli_exclude_from_gameplay; do
+    # cannoli_menu_keycodes carries the menu button a user bound in the setup wizard. It exists
+    # because input_menu_toggle_btn holds one keycode and cannot say "none" or "two", and because
+    # Cannoli tells RetroArch the menu key is unbound so its own menu never opens over the game.
+    # A submitted cfg therefore states its menu button here and nowhere else, and converting it to
+    # input_menu_toggle_btn is a judgement a person makes, not a line to copy across.
+    #
+    # submission_* are what the device could say about itself when the mapping was built: the
+    # handheld model and the pad's source mask, neither recoverable from the file afterwards.
+    # They are captured deliberately under a prefix that matches nothing, so they reach a curator
+    # without pinning an unverified profile to a handheld model on the way.
+    for banned in cannoli_user cannoli_descriptor cannoli_exclude_from_gameplay \
+                  cannoli_menu_keycodes submission_build_model submission_source_mask; do
         if [ -n "$(val "$f" "$banned")" ]; then
             fail "per-instance key '$banned' does not belong in a database entry"
         fi
